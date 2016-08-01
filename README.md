@@ -24,6 +24,17 @@ Let's make a file system does away with high avilability / reliability for the s
   - Intermidate data for Hadoop jobs
   - Staging INSERT data
 
-So you see, "one size does not fit all". Let's make a distributed file system that is dead simple, focuses on write speed, and always moves bytes lazily. How will it work? See the next section.
+So you see, "one size does not fit all". Let's make a distributed file system that is dead simple, focuses on write speed, and always moves bytes lazily. Here's a rough outline of the usage:
+  - `N nodes` in a system, all mounting dsdfs at `/shared` - initially empty
+  - `Node 1` writes a file `/shared/somefile`, and is now "owner" of `somefile`.
+  - `Node 2` can run `ls /shared` and sees `somefile`.
+  - `Node 2` can run `cat /shared/somefile`, which will read the file directly from Node 1.
+    - `Node 2` will then cache this file with its timestamp locally.
+  - `Node 2` can execute `echo hello >> /shared/somefile`, which will write some bytes to the file on `Node 1`.
+    - This is because `Node 1` is considered the "owner" of the file. These bytes cannot be shareded across the two nodes.
+    - In contrast, `echo hello > /shared/somefile` would be a local write, as it would overwrite the file on `Node 1`.
+How will it work? See the next section.
 
 ## Architecture
+
+DSDFS is based on FUSE, and backed by actual local disk for local writes.
