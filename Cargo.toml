@@ -1,0 +1,7 @@
+[package]
+name = "dsdfs"
+version = "0.1.0"
+authors = ["Eden Zik <eden.zik@hpe.com>"]
+
+[dependencies]
+fuse = "0.3"
